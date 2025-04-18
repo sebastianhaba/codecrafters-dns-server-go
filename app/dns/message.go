@@ -11,10 +11,21 @@ type Message struct {
 func NewMessage(data []byte) *Message {
 	message := &Message{}
 	message.parse(data)
+
+	message.Header.QR = 1
+
+	if message.Header.OPCODE != 0 {
+		message.Header.RCODE = 4
+	} else {
+		message.Header.RCODE = 0
+	}
+
 	return message
 }
 
 func (m *Message) ToBytes() []byte {
+	m.Header.ANCOUNT = uint16(len(m.Answer))
+
 	bytes := m.Header.ToBytes()
 
 	for i := 0; i < len(m.Question); i++ {

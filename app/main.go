@@ -50,10 +50,9 @@ func main() {
 		fmt.Printf("Parsed message %s\n", dnsMessage)
 
 		// Create an empty response
-		dnsMessage.Header.QR = 1
-		dnsMessage.Header.ANCOUNT = 1
-		dnsMessage.Answer = make([]dns.ResourceRecord, dnsMessage.Header.ANCOUNT)
+		dnsMessage.Answer = make([]dns.ResourceRecord, 1)
 		dnsMessage.Answer[0] = dns.NewARecord("codecrafters.io.", net.ParseIP("127.0.0.1"), 3600)
+
 		response := dnsMessage.ToBytes()
 
 		_, err = udpConn.WriteToUDP(response, source)
