@@ -40,10 +40,21 @@ func (m *Message) parse(data []byte) {
 }
 
 func (m *Message) String() string {
-	return fmt.Sprintf(
+	var result string
+	result = fmt.Sprintf(
 		"Message{\n"+
-			"  Header: %s\n"+
-			"}",
+			"  Header: %s\n",
 		m.Header.String(),
 	)
+
+	if len(m.Question) > 0 {
+		result += "  Questions: [\n"
+		for i, q := range m.Question {
+			result += fmt.Sprintf("    %d: %s\n", i, q.String())
+		}
+		result += "  ]\n"
+	}
+
+	result += "}"
+	return result
 }
