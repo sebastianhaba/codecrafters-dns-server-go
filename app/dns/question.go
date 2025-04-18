@@ -22,7 +22,6 @@ func (q *Question) ToBytes() []byte {
 	bytes = append(bytes, byte(q.QCLASS>>8), byte(q.QCLASS&0xFF))
 
 	return bytes
-
 }
 
 func parseQuestion(data []byte, offset int) (Question, int) {

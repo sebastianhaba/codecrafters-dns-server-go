@@ -5,6 +5,7 @@ import "fmt"
 type Message struct {
 	Header   Header
 	Question []Question
+	Answer   []ResourceRecord
 }
 
 func NewMessage(data []byte) *Message {
@@ -18,6 +19,10 @@ func (m *Message) ToBytes() []byte {
 
 	for i := 0; i < len(m.Question); i++ {
 		bytes = append(bytes, m.Question[i].ToBytes()...)
+	}
+
+	for i := 0; i < len(m.Answer); i++ {
+		bytes = append(bytes, m.Answer[i].ToBytes()...)
 	}
 
 	return bytes

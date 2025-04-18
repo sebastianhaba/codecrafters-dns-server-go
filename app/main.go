@@ -1,12 +1,21 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/codecrafters-io/dns-server-starter-go/app/dns"
 	"net"
+	"os"
 )
 
 func main() {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Failed to get current directory:", err)
+	} else {
+		fmt.Println("Current directory:", currentDir)
+	}
+
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
@@ -32,6 +41,8 @@ func main() {
 			break
 		}
 
+		fmt.Println(hex.EncodeToString(buf[:size]))
+
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
@@ -40,6 +51,9 @@ func main() {
 
 		// Create an empty response
 		dnsMessage.Header.QR = 1
+		dnsMessage.Header.ANCOUNT = 1
+		dnsMessage.Answer = make([]dns.ResourceRecord, dnsMessage.Header.ANCOUNT)
+		dnsMessage.Answer[0] = dns.NewARecord("codecrafters.io.", net.ParseIP("127.0.0.1"), 3600)
 		response := dnsMessage.ToBytes()
 
 		_, err = udpConn.WriteToUDP(response, source)
