@@ -21,7 +21,7 @@ func TestNewMessage(t *testing.T) {
 		}
 
 		if message.Header.QR != 1 {
-			t.Errorf("want QR = 1 (zapytanie), otrzymano %d", message.Header.QR)
+			t.Errorf("want QR = 1, got %d", message.Header.QR)
 		}
 
 		if message.Header.QDCOUNT != 1 {
@@ -42,7 +42,7 @@ func TestNewMessage(t *testing.T) {
 
 		// Weryfikacja pytania
 		if len(message.Question) != 1 {
-			t.Fatalf("want 1 pytanie, got %d", len(message.Question))
+			t.Fatalf("want 1, got %d", len(message.Question))
 		}
 
 		expectedQName := "codecrafters.io."
@@ -88,7 +88,7 @@ func TestNewMessage(t *testing.T) {
 		}
 
 		if len(message.Question) != 1 {
-			t.Fatalf("want 1 question, got %d", len(message.Question))
+			t.Fatalf("want 1, got %d", len(message.Question))
 		}
 
 		expectedQName := "codecrafters.io."
