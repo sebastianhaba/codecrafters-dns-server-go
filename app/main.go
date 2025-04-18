@@ -51,7 +51,7 @@ func main() {
 
 		// Create an empty response
 		dnsMessage.Answer = make([]dns.ResourceRecord, 1)
-		dnsMessage.Answer[0] = dns.NewARecord("codecrafters.io.", net.ParseIP("127.0.0.1"), 3600)
+		dnsMessage.Answer[0] = dns.NewARecord(dnsMessage.Question[0].QNAME, net.ParseIP("127.0.0.1"), 3600)
 
 		response := dnsMessage.ToBytes()
 
