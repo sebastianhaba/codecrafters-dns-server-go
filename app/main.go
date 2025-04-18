@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/codecrafters-io/dns-server-starter-go/app/dns"
 	"net"
 )
-
-// Ensures gofmt doesn't remove the "net" import in stage 1 (feel free to remove this!)
-var _ = net.ListenUDP
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -37,8 +35,12 @@ func main() {
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
+		dnsMessage := dns.NewMessage(buf[:size])
+		fmt.Printf("Parsed message %s\n", dnsMessage)
+
 		// Create an empty response
-		response := []byte{}
+		dnsMessage.Header.QR = 1
+		response := dnsMessage.ToBytes()
 
 		_, err = udpConn.WriteToUDP(response, source)
 		if err != nil {
