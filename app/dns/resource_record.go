@@ -2,6 +2,7 @@ package dns
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 )
 
@@ -43,4 +44,15 @@ func (rr *ResourceRecord) ToBytes() []byte {
 	bytes = append(bytes, rr.RDATA...)
 
 	return bytes
+}
+
+func (rr *ResourceRecord) String() string {
+	var rdataStr string
+	if rr.TYPE == 1 && len(rr.RDATA) == 4 {
+		rdataStr = fmt.Sprintf("%d.%d.%d.%d", rr.RDATA[0], rr.RDATA[1], rr.RDATA[2], rr.RDATA[3])
+	} else {
+		rdataStr = fmt.Sprintf("%v", rr.RDATA)
+	}
+	return fmt.Sprintf("ResourceRecord{NAME: %s, TYPE: %d, CLASS: %d, TTL: %d, RDLENGTH: %d, RDATA: %s}",
+		rr.NAME, rr.TYPE, rr.CLASS, rr.TTL, rr.RDLENGTH, rdataStr)
 }

@@ -53,6 +53,15 @@ func (m *Message) parse(data []byte) {
 		m.Question[i] = question
 		offset = newOffset
 	}
+
+	if m.Header.ANCOUNT > 0 {
+		m.Answer = make([]ResourceRecord, m.Header.ANCOUNT)
+		for i := 0; i < int(m.Header.ANCOUNT); i++ {
+			answer, newOffset := parseResourceRecord(data, offset)
+			m.Answer[i] = answer
+			offset = newOffset
+		}
+	}
 }
 
 func (m *Message) String() string {
@@ -73,4 +82,38 @@ func (m *Message) String() string {
 
 	result += "}"
 	return result
+}
+
+func parseResourceRecord(data []byte, offset int) (ResourceRecord, int) {
+	record := ResourceRecord{}
+
+	name, newOffset := parseDomainName(data, offset)
+	record.NAME = name
+	offset = newOffset
+
+	if offset+10 > len(data) {
+		return record, offset
+	}
+
+	record.TYPE = uint16(data[offset])<<8 | uint16(data[offset+1])
+	offset += 2
+
+	record.CLASS = uint16(data[offset])<<8 | uint16(data[offset+1])
+	offset += 2
+
+	record.TTL = uint32(data[offset])<<24 | uint32(data[offset+1])<<16 | uint32(data[offset+2])<<8 | uint32(data[offset+3])
+	offset += 4
+
+	record.RDLENGTH = uint16(data[offset])<<8 | uint16(data[offset+1])
+	offset += 2
+
+	if offset+int(record.RDLENGTH) > len(data) {
+		return record, offset
+	}
+
+	record.RDATA = make([]byte, record.RDLENGTH)
+	copy(record.RDATA, data[offset:offset+int(record.RDLENGTH)])
+	offset += int(record.RDLENGTH)
+
+	return record, offset
 }
