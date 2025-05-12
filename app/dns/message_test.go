@@ -96,4 +96,18 @@ func TestNewMessage(t *testing.T) {
 			t.Errorf("want QNAME = %s, got %s", expectedQName, message.Question[0].QNAME)
 		}
 	})
+
+	t.Run("Answer section should contains two answers", func(t *testing.T) {
+		hexStr := "12560100000200000000000003616263116c6f6e67617373646f6d61696e6e616d6503636f6d000001000103646566c01000010001"
+
+		messageBytes, err := hex.DecodeString(hexStr)
+		if err != nil {
+			t.Fatalf("Decode error: %v", err)
+		}
+
+		message := NewMessage(messageBytes)
+		if len(message.Answer) != 2 {
+			t.Errorf("want 2, got %d", len(message.Answer))
+		}
+	})
 }

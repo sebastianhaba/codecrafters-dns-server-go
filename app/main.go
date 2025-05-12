@@ -50,8 +50,11 @@ func main() {
 		fmt.Printf("Parsed message %s\n", dnsMessage)
 
 		// Create an empty response
-		dnsMessage.Answer = make([]dns.ResourceRecord, 1)
-		dnsMessage.Answer[0] = dns.NewARecord(dnsMessage.Question[0].QNAME, net.ParseIP("127.0.0.1"), 3600)
+		dnsMessage.Answer = make([]dns.ResourceRecord, len(dnsMessage.Question))
+
+		for i, question := range dnsMessage.Question {
+			dnsMessage.Answer[i] = dns.NewARecord(question.QNAME, net.ParseIP("127.0.0.1"), 3600)
+		}
 
 		response := dnsMessage.ToBytes()
 

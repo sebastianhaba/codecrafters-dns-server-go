@@ -54,8 +54,47 @@ func parseDomainName(data []byte, offset int) (string, int) {
 	var name string
 	position := offset
 	length := int(data[position])
+	// Śledzenie czy nastąpiło przekierowanie, aby uniknąć nieskończonych pętli
+	jumped := false
+	// Zapisz oryginalną pozycję dla zwrócenia poprawnego offsetu
+	originalPosition := position
+	// Ustawiamy maksymalną liczbę skoków, aby zapobiec atakom
+	maxJumps := 10
+	jumps := 0
 
 	for length > 0 {
+		// Sprawdź czy to wskaźnik kompresji (dwa najstarsze bity ustawione na 1)
+		if (length & 0xC0) == 0xC0 {
+			if jumps >= maxJumps {
+				return name, position + 2
+			}
+
+			// To jest wskaźnik, oblicz offset
+			if position+1 >= len(data) {
+				return name, position + 1
+			}
+
+			pointer := ((length & 0x3F) << 8) | int(data[position+1])
+
+			// Jeśli jest to pierwszy skok, zapisz następną pozycję
+			if !jumped {
+				position += 2
+				originalPosition = position
+			}
+
+			// Ustaw nową pozycję na podstawie wskaźnika
+			position = pointer
+			jumped = true
+			jumps++
+
+			// Pobierz długość etykiety w nowej pozycji
+			if position >= len(data) {
+				return name, originalPosition
+			}
+			length = int(data[position])
+			continue
+		}
+
 		position++
 
 		if position+length > len(data) {
@@ -78,7 +117,13 @@ func parseDomainName(data []byte, offset int) (string, int) {
 		position++
 	}
 
+	// Jeśli nastąpiło przekierowanie, zwróć oryginalną pozycję
+	if jumped {
+		return name, originalPosition
+	}
+
 	return name, position
+
 }
 
 func domainNameToBytes(domain string) []byte {
